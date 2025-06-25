@@ -1,71 +1,40 @@
-import React, { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useForm } from "react-hook-form";
 
 type FoodDeliveryFormType = {
   customerName: string;
   Mobile: string;
 };
 
-type FoodDeliveryFormErrorType = {
-  customerName: string;
-  Mobile: string;
-};
-
 const FoodDeliveryForm = () => {
-  const [values, setValues] = useState<FoodDeliveryFormType>({
-    customerName: "Mary",
-    Mobile: "",
-  });
-  const [errors, setErrors] = useState<FoodDeliveryFormErrorType>({
-    customerName: "Mary",
-    Mobile: "",
-  });
+  const { register, handleSubmit } = useForm<FoodDeliveryFormType>();
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
+  const onSubmit = (FormData: FoodDeliveryFormType) => {
+    console.log("Form Data : ", FormData);
   };
 
-  const validateFormData = () => {
-    const tempErrors: FoodDeliveryFormErrorType = {
-      customerName: "",
-      Mobile: "",
-    };
-    if (values.customerName == "")
-      tempErrors.customerName = "Customer name is required.";
-    if (values.Mobile == "") tempErrors.Mobile = "Mobile Number is required.";
-    setErrors(tempErrors);
-    return Object.values(tempErrors).every((x) => x == "");
+  const onError = (errors) => {
+    console.log("Validation errors : ", errors);
   };
 
-  const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validateFormData()) {
-      console.log(values);
-    } else {
-      console.log("Form is invalid");
-    }
-  };
   return (
-    <form autoComplete="off" onSubmit={onSubmit}>
+    <form autoComplete="off" onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="form-floating mb-3">
         <input
           type="text"
-          name="customerName"
           className="form-control"
           placeholder="Customer Name"
-          value={values.customerName}
-          onChange={handleInputChange}
+          {...register("customerName", {
+            required: " Customer Name is required",
+          })}
         />
         <label> Customer Name</label>
       </div>
       <div className="form-floating mb-3">
         <input
           type="text"
-          name="Mobile"
           className="form-control"
           placeholder="Mobile Number"
-          value={values.Mobile}
-          onChange={handleInputChange}
+          {...register("Mobile", { required: "Mobile Number is required" })}
         />
         <label>Mobile</label>
       </div>
