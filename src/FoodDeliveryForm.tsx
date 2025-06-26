@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 
 type FoodDeliveryFormType = {
   orderNo: number;
@@ -9,7 +9,13 @@ type FoodDeliveryFormType = {
 
 const FoodDeliveryForm = () => {
   //console.log(useForm());
-  const { register, handleSubmit } = useForm<FoodDeliveryFormType>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FoodDeliveryFormType>({
+    mode: "onChange",
+    criteriaMode: "all",
     defaultValues: {
       orderNo: new Date().valueOf(),
       customerName: "",
@@ -20,8 +26,11 @@ const FoodDeliveryForm = () => {
   const onSubmit = (formData: FoodDeliveryFormType) => {
     console.log("Form Data : ", formData);
   };
+  const onError = (err: FieldErrors) => {
+    console.log("Validating Error", err);
+  };
   return (
-    <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+    <form autoComplete="off" onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="row mb-2">
         <div className="col">
           <div className="form-floating">
@@ -36,14 +45,21 @@ const FoodDeliveryForm = () => {
           </div>
         </div>
         <div className="col">
-          <div className="form-floating mb-3">
+          <div className="form-floating">
             <input
               type="text"
               className="form-control"
-              placeholder="name@gmail.com"
-              {...register("email")}
+              placeholder="Mobile Number"
+              {...register("Mobile", {
+                required: "Mobile Number is required",
+                minLength: { value: 10, message: "MinLength is 10 digits" },
+                maxLength: { value: 10, message: "MinLength is 10 digits" },
+              })}
             />
-            <label> Email </label>
+            <label>Mobile</label>
+            {errors.Mobile && (
+              <div className="error-feedback">{errors.Mobile?.message}</div>
+            )}
           </div>
         </div>
       </div>
@@ -54,20 +70,52 @@ const FoodDeliveryForm = () => {
               type="text"
               className="form-control"
               placeholder="Customer Name"
-              {...register("customerName")}
+              {...register("customerName", {
+                required: { value: true, message: "Customer Name is required" },
+                minLength: 3,
+                maxLength: 15,
+              })}
             />
             <label> Customer Name</label>
+            {errors.customerName && (
+              <div className="error-feedback">
+                {errors.customerName?.message}
+              </div>
+            )}
           </div>
         </div>
         <div className="col">
-          <div className="form-floating">
+          <div className="form-floating mb-3">
             <input
               type="text"
               className="form-control"
-              placeholder="Mobile Number"
-              {...register("Mobile")}
+              placeholder="name@gmail.com"
+              {...register("email", {
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Incorrect email-id",
+                },
+                validate: {
+                  notFake: (value) => {
+                    return (
+                      value != "email@gmail.com" ||
+                      "Particular email is blocked"
+                    );
+                  },
+                  notFromThatDomain: (value) => {
+                    return (
+                      (!value.endsWith("xyz.com") &&
+                        !value.endsWith("example.com")) ||
+                      "This Domain is not supported"
+                    );
+                  },
+                },
+              })}
             />
-            <label>Mobile</label>
+            <label> Email </label>
+            {errors.email && (
+              <div className="error-feedback">{errors.email?.message}</div>
+            )}
           </div>
         </div>
       </div>
