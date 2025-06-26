@@ -1,73 +1,75 @@
-import React, { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useForm } from "react-hook-form";
 
 type FoodDeliveryFormType = {
-  customerName: string;
-  Mobile: string;
-};
-
-type FoodDeliveryFormErrorType = {
+  orderNo: number;
+  email: string;
   customerName: string;
   Mobile: string;
 };
 
 const FoodDeliveryForm = () => {
-  const [values, setValues] = useState<FoodDeliveryFormType>({
-    customerName: "Mary",
-    Mobile: "",
-  });
-  const [errors, setErrors] = useState<FoodDeliveryFormErrorType>({
-    customerName: "Mary",
-    Mobile: "",
-  });
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-  };
-
-  const validateFormData = () => {
-    const tempErrors: FoodDeliveryFormErrorType = {
+  //console.log(useForm());
+  const { register, handleSubmit } = useForm<FoodDeliveryFormType>({
+    defaultValues: {
+      orderNo: new Date().valueOf(),
       customerName: "",
       Mobile: "",
-    };
-    if (values.customerName == "")
-      tempErrors.customerName = "Customer name is required.";
-    if (values.Mobile == "") tempErrors.Mobile = "Mobile Number is required.";
-    setErrors(tempErrors);
-    return Object.values(tempErrors).every((x) => x == "");
-  };
-
-  const onSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validateFormData()) {
-      console.log(values);
-    } else {
-      console.log("Form is invalid");
-    }
+      email: "",
+    },
+  });
+  const onSubmit = (formData: FoodDeliveryFormType) => {
+    console.log("Form Data : ", formData);
   };
   return (
-    <form autoComplete="off" onSubmit={onSubmit}>
-      <div className="form-floating mb-3">
-        <input
-          type="text"
-          name="customerName"
-          className="form-control"
-          placeholder="Customer Name"
-          value={values.customerName}
-          onChange={handleInputChange}
-        />
-        <label> Customer Name</label>
+    <form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+      <div className="row mb-2">
+        <div className="col">
+          <div className="form-floating">
+            <input
+              type="text"
+              disabled
+              className="form-control"
+              placeholder="#Order No"
+              {...register("orderNo")}
+            />
+            <label>#Order No</label>
+          </div>
+        </div>
+        <div className="col">
+          <div className="form-floating mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="name@gmail.com"
+              {...register("email")}
+            />
+            <label> Email </label>
+          </div>
+        </div>
       </div>
-      <div className="form-floating mb-3">
-        <input
-          type="text"
-          name="Mobile"
-          className="form-control"
-          placeholder="Mobile Number"
-          value={values.Mobile}
-          onChange={handleInputChange}
-        />
-        <label>Mobile</label>
+      <div className="row mb-2">
+        <div className="col">
+          <div className="form-floating">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Customer Name"
+              {...register("customerName")}
+            />
+            <label> Customer Name</label>
+          </div>
+        </div>
+        <div className="col">
+          <div className="form-floating">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Mobile Number"
+              {...register("Mobile")}
+            />
+            <label>Mobile</label>
+          </div>
+        </div>
       </div>
       <button type="submit" className="btn btn-primary">
         Submit
