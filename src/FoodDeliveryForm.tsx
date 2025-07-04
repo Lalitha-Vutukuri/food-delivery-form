@@ -1,11 +1,30 @@
 import { useForm, type FieldErrors } from "react-hook-form";
+import TextField from "./controls/TextField";
+import Select from "./controls/Select";
+import type { SelectOptionType } from "./types";
 
 type FoodDeliveryFormType = {
   orderNo: number;
   email: string;
   customerName: string;
   Mobile: string;
+  paymentMethod: string;
+  deliveryIn: number;
 };
+
+const paymentOptions: SelectOptionType[] = [
+  { value: "", text: "Select" },
+  { value: "online", text: "Paid Online" },
+  { value: "COD", text: "Cash on Delivery" },
+];
+
+const deliveryInOptions: SelectOptionType[] = [
+  { value: 0, text: "Select" },
+  { value: 30, text: "half an hour" },
+  { value: 60, text: "an hour" },
+  { value: 90, text: "one and half hour" },
+  { value: 120, text: "Two hours" },
+];
 
 const FoodDeliveryForm = () => {
   //console.log(useForm());
@@ -21,6 +40,8 @@ const FoodDeliveryForm = () => {
       customerName: "",
       Mobile: "",
       email: "",
+      paymentMethod: "",
+      deliveryIn: 0,
     },
   });
   const onSubmit = (formData: FoodDeliveryFormType) => {
@@ -33,91 +54,72 @@ const FoodDeliveryForm = () => {
     <form autoComplete="off" onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="row mb-2">
         <div className="col">
-          <div className="form-floating">
-            <input
-              type="text"
-              disabled
-              className="form-control"
-              placeholder="#Order No"
-              {...register("orderNo")}
-            />
-            <label>#Order No</label>
-          </div>
+          <TextField
+            label="#Order No"
+            disabled
+            {...register("orderNo")}
+            error={errors.orderNo}
+          />
         </div>
         <div className="col">
-          <div className="form-floating">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Mobile Number"
-              {...register("Mobile", {
-                required: "Mobile Number is required",
-                minLength: { value: 10, message: "MinLength is 10 digits" },
-                maxLength: { value: 10, message: "MinLength is 10 digits" },
-              })}
-            />
-            <label>Mobile</label>
-            {errors.Mobile && (
-              <div className="error-feedback">{errors.Mobile?.message}</div>
-            )}
-          </div>
+          <TextField
+            label="Mobile Number"
+            {...register("Mobile", {
+              required: "Mobile Number is required",
+            })}
+            error={errors.Mobile}
+          />
         </div>
       </div>
       <div className="row mb-2">
         <div className="col">
-          <div className="form-floating">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Customer Name"
-              {...register("customerName", {
-                required: { value: true, message: "Customer Name is required" },
-                minLength: 3,
-                maxLength: 15,
-              })}
-            />
-            <label> Customer Name</label>
-            {errors.customerName && (
-              <div className="error-feedback">
-                {errors.customerName?.message}
-              </div>
-            )}
-          </div>
+          <TextField
+            type="text"
+            label="Customer Name"
+            {...register("customerName", {
+              required: { value: true, message: "Customer Name is required" },
+            })}
+            error={errors.customerName}
+          />
         </div>
         <div className="col">
-          <div className="form-floating mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="name@gmail.com"
-              {...register("email", {
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Incorrect email-id",
-                },
-                validate: {
-                  notFake: (value) => {
-                    return (
-                      value != "email@gmail.com" ||
-                      "Particular email is blocked"
-                    );
-                  },
-                  notFromThatDomain: (value) => {
-                    return (
-                      (!value.endsWith("xyz.com") &&
-                        !value.endsWith("example.com")) ||
-                      "This Domain is not supported"
-                    );
-                  },
+          <TextField
+            type="email"
+            label="name@gmail.com"
+            {...register("email", {
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Incorrect email-id",
+              },
+            })}
+            error={errors.email}
+          />
+        </div>
+        <div>List of ordered Items</div>
+        <div className="row mb-2">
+          <div className="col">
+            <Select
+              label="Payment Method"
+              options={paymentOptions}
+              {...register("paymentMethod", {
+                required: {
+                  value: true,
+                  message: "Payment Method is required",
                 },
               })}
+              error={errors.paymentMethod}
             />
-            <label> Email </label>
-            {errors.email && (
-              <div className="error-feedback">{errors.email?.message}</div>
-            )}
+          </div>
+          <div className="col">
+            <Select
+              label="Delivery In"
+              options={deliveryInOptions}
+              {...register("deliveryIn")}
+              error={errors.deliveryIn}
+            />
           </div>
         </div>
+        <div>Delivery Items</div>
       </div>
       <button type="submit" className="btn btn-primary">
         Submit
